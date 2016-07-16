@@ -1,5 +1,4 @@
 # beerwinners
 
-##Load recipe##
+Load recipe
 
-##Create Corpus##
