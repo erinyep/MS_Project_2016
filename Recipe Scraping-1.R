@@ -111,6 +111,8 @@ data1<-data
 View(data1)
 ##########################################################
 
+### The rest of this code was exploratory for an early iteration
+
 ### Create a new data frame and remove punctuation
 datatdm<-data
 datatdm$ingredients<-gsub('"', "", datatdm$ingredients)
