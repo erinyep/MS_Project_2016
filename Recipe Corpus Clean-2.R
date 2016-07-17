@@ -68,17 +68,7 @@ datadtm$ingredients<-gsub("canned","",datadtm$ingredients)
 datadtm$ingredients<-gsub("sliced","",datadtm$ingredients)
 datadtm$ingredients<-gsub("lowsodium","",datadtm$ingredients)
 
-#Run corpus clean up tasks again just in case
-ingredient_text <- paste(datadtm$ingredients, collapse=" ")
-ingredient_source <- VectorSource(ingredient_text)
-corpus <- Corpus(ingredient_source)
-corpus <- tm_map(corpus, content_transformer(tolower))
-corpus <- tm_map(corpus, removePunctuation)
-corpus <- tm_map(corpus, stripWhitespace)
-dtm <- DocumentTermMatrix(corpus)
-dtm2 <- as.matrix(dtm)
-frequency <- colSums(dtm2)
-frequency <- sort(frequency, decreasing=TRUE)
+#View updated frequency and create dataframe
 View(frequency)
 freq.df <- as.data.frame(frequency)
 freq.df$ingredient <- row.names(freq.df)
