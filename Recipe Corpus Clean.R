@@ -62,3 +62,8 @@ dtm2 <- as.matrix(dtm)
 frequency <- colSums(dtm2)
 frequency <- sort(frequency, decreasing=TRUE)
 View(frequency)
+
+##Create dataframe
+freq.df <- as.data.frame(frequency)
+freq.df$ingredient <- row.names(freq.df)
+freq.df <- as.data.frame(freq.df, row.names = 1:length(freq.df$frequency))
