@@ -67,6 +67,15 @@ data.clean$ingredients<-gsub("canned","",data.clean$ingredients)
 data.clean$ingredients<-gsub("sliced","",data.clean$ingredients)
 data.clean$ingredients<-gsub("lowsodium","",data.clean$ingredients)
 
+### Re-create dtm to review and frequency
+dtm <- DocumentTermMatrix(corpus)
+dtm2 <- as.matrix(dtm)
+frequency <- colSums(dtm2)
+frequency <- sort(frequency, decreasing=TRUE)
+View(frequency)
+head(frequency)
+View(dtm2)
+
 ### View updated frequency and create dataframe
 View(frequency)
 freq.df <- as.data.frame(frequency)
