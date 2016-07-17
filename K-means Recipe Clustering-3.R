@@ -1,31 +1,116 @@
 ####Weight with Tf IDF##########
 
-
 testdtm_tfxidf <- weightTfIdf(testdtm)
 
-noGround_tfxidf <-weightTfIdf(noGroundDtm)
+###Prep for K means
 
-##########################################
-##K Means Clustering
 m <- as.matrix(testdtm_tfxidf)
-noGclust <- as.matrix(noGround_tfxidf)
+
 norm_eucl <- function(m) m/apply(m, MARGIN=1, FUN=function(x) sum(x^2)^.5)
 
 set.seed(1234)
 m_norm <- norm_eucl(m)
 
-noG_norm <- norm_eucl(noGclust)
+########Execute K Means###########
 
-cl26 <- kmeans(m_norm, 26)
-noG26 <- kmeans(noG_norm, 26, iter.max=30)
-cl15 <- kmeans(m_norm, 15)
-
-cl5 <- kmeans(m_norm, 5)
-
-###add the cluster back into the ish. 
-dataclust <- datatrue
+cl10 <- kmeans(m_norm, 10)
 
 
-dataclust$cluster <- cl26$cluster
-dataclust$noGclust  <- noG26$cluster
-write.csv(dataclust, file = "datawithclustersnog2.csv")
+###add the clusters into the cleanded data frame 
+
+
+data.clean$cluster <- cl10$cluster
+
+write.csv(dataclust10, file = "datawithclusters10.csv")
+
+
+
+#######function to look at top cuisines of a cluster#################################
+topClusterCuisines <- function(clusterNumber, clusterdf, numofterms = 10){
+  myReader1 <- readTabular(mapping=list(content="cuisine", id="recipe"))
+  clustdata <- clusterdf[clusterdf$cluster==clusterNumber,]
+  clustdata$ingredients <- gsub(",",", ",clustdata$ingredients) 
+  clustdata$ingredients <- gsub("_"," ",clustdata$ingredients) 
+  cluscorp <- Corpus(DataframeSource(clustdata), readerControl=list(reader=myReader1))
+  rcorpclus <- tm_map(cluscorp, removePunctuation)
+  clusdtm <- DocumentTermMatrix(rcorpclus)
+  clusfreq <- colSums(as.matrix(clusdtm))
+  clusord <- order(clusfreq)
+  clusfreq[tail(clusord,numofterms)]
+}
+
+
+###########################Function to look at the top terms of a cluster#################################
+topClusterTerms <- function(clusterNumber, clusterdf, numofterms = 10){
+  myReader1 <- readTabular(mapping=list(content="ingredients", id="recipe"))
+  clustdata <- clusterdf[clusterdf$cluster==clusterNumber,]
+  clustdata$ingredients <- gsub(",",", ",clustdata$ingredients) 
+  clustdata$ingredients <- gsub("_"," ",clustdata$ingredients) 
+  cluscorp <- Corpus(DataframeSource(clustdata), readerControl=list(reader=myReader1))
+  rcorpclus <- tm_map(cluscorp, removePunctuation)
+  clusdtm <- DocumentTermMatrix(rcorpclus)
+  clusfreq <- colSums(as.matrix(clusdtm))
+  clusord <- order(clusfreq)
+  clusfreq[tail(clusord,numofterms)]
+}
+
+
+##############################Function to Recluster results ########################
+
+
+reCluster <- function(clusterNumber, clusterdf, numofclusters = 5){
+  myReader1 <- readTabular(mapping=list(content="ingredients", id="recipe"))
+  clustdata <- clusterdf[clusterdf$cluster==clusterNumber,]
+  clustdata$ingredients <- gsub(",",", ",clustdata$ingredients) 
+  clustdata$ingredients <- gsub("_"," ",clustdata$ingredients) 
+  cluscorp <- Corpus(DataframeSource(clustdata), readerControl=list(reader=myReader1))
+  rcorpclus <- tm_map(cluscorp, removePunctuation)
+  clusdtm <- DocumentTermMatrix(rcorpclus)
+  dtm_tfxidf <- weightTfIdf(clusdtm)
+  x <- as.matrix(dtm_tfxidf)
+  norm_eucl <- function(m) m/apply(m, MARGIN=1, FUN=function(x) sum(x^2)^.5)
+  set.seed(1234)
+  x_norm <- norm_eucl(x)
+  xClus <- kmeans(x_norm, numofclusters)
+  clustdata$cluster <- xClus$cluster
+  write.csv(clustdata, file = paste("cluster",clusterNumber,"reclus.csv", sep="")
+}
+
+
+
+###Run this to check out the leading terms in the clusters
+topClusterTerms(3, cluster5 ,20)
+
+
+###Run this to check out the leading cuisines in the clusters
+topClusterCuisines(5,cluster3)
+
+
+#reCluster any clusters that are a 'potluck' of recipies or cuisines. 
+
+##reminder, this out puts as a CSV currently
+reCluster(3, dataclust10)
+
+
+
+####read back in the reclustered data frames
+
+recluster6 <- read.csv('cluster6reclus.csv')
+recluster3 <- read.csv('cluster3reclus.csv')
+
+
+#####create the data frame for Naive Bayes modeling
+
+dataClusNB <- data.clean
+
+dataClusNB <- dataClusNB[dataClusNB$cluster!=3,]
+dataClusNB <- dataClusNB[dataClusNB$cluster!=6,]
+
+cluster6 <- cluster5[,(2,3,4,5)]
+
+dataClusNB <- rbind(cluster6,dataClusNB)
+
+#####leave out this cluster, did not re cluster well. We will be using it as a classification data set.
+cluster3 <- cluster3[,c(2,3,4,5)]
+
+save(cluster3, file='largeclusNB.Rda')
