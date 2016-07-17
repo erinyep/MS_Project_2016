@@ -7,7 +7,7 @@
 myReader1 <- readTabular(mapping=list(content="ingredients", id="recipe"))
 myReaderCuisine <- readTabular(mapping=list(content="ingredients", id="cuisine"))
 
-### create the corpus with document IDs
+### Create the corpus with document IDs
 datadtm <- data
 datadtm$ingredients<-gsub('"', "", datadtm$ingredients)
 datadtm$ingredients<-gsub(',', " ", datadtm$ingredients)
@@ -67,7 +67,7 @@ datadtm$ingredients<-gsub("canned","",datadtm$ingredients)
 datadtm$ingredients<-gsub("sliced","",datadtm$ingredients)
 datadtm$ingredients<-gsub("lowsodium","",datadtm$ingredients)
 
-#View updated frequency and create dataframe
+### View updated frequency and create dataframe
 View(frequency)
 freq.df <- as.data.frame(frequency)
 freq.df$ingredient <- row.names(freq.df)
