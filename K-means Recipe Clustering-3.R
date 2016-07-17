@@ -1,29 +1,3 @@
-library(tm)
-
-####super snazzy code that I found online to help tag the id to the document#####
-#### Will be important for our overall project#########
-myReader1 <- readTabular(mapping=list(content="ingredients", id="recipe"))
-myReaderCuisine <- readTabular(mapping=list(content="ingredients", id="cuisine"))
-### create the corpus with document IDs
-
-datatrue <- data
-datatrue$ingredients <- gsub(",",", ",datatrue$ingredients) 
-datatrue$ingredients <- gsub("_"," ",datatrue$ingredients)
-
-testcorpus1 <- Corpus(DataframeSource(datatrue), readerControl=list(reader=myReader1))
-
-testrcorp <- tm_map(testcorpus1, removePunctuation)
-
-
-testrcorp.noGround <-testrcorp
-testrcorp.noGround <- tm_map(testrcorp.noGround, removeWords, "ground")
-
-#####Build DTMS
-
-testdtm <- DocumentTermMatrix(testrcorp)
-
-noGroundDtm<- DocumentTermMatrix(testrcorp.noGround)
-
 ####Weight with Tf IDF##########
 
 
