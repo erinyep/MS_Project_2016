@@ -1,10 +1,10 @@
 ####Weight with Tf IDF##########
 
-testdtm_tfxidf <- weightTfIdf(testdtm)
+dtm_tfxidf <- weightTfIdf(dtm)
 
 ###Prep for K means
 
-m <- as.matrix(testdtm_tfxidf)
+m <- as.matrix(dtm_tfxidf)
 
 norm_eucl <- function(m) m/apply(m, MARGIN=1, FUN=function(x) sum(x^2)^.5)
 
