@@ -1,19 +1,18 @@
-#Load library for tm package
-library(tm)
+### The Beer Winners
+# Run this code after uploading RecipeData.Rda
+# Or if you ran Recipe Scraping-1
 
-####super snazzy code that I found online to help tag the id to the document#####
-#### Will be important for our overall project#########
+### Code to tag the ID to the document
+### Will be important for our overall project
 myReader1 <- readTabular(mapping=list(content="ingredients", id="recipe"))
 myReaderCuisine <- readTabular(mapping=list(content="ingredients", id="cuisine"))
 
 ### create the corpus with document IDs
 datadtm <- data
-
-#Remove punctuation
 datadtm$ingredients<-gsub('"', "", datadtm$ingredients)
 datadtm$ingredients<-gsub(',', " ", datadtm$ingredients)
 
-#Corpus clean up tasks
+### Corpus clean up tasks
 ingredient_text <- paste(datadtm$ingredients, collapse=" ")
 ingredient_source <- VectorSource(ingredient_text)
 corpus <- Corpus(ingredient_source)
@@ -21,7 +20,7 @@ corpus <- tm_map(corpus, content_transformer(tolower))
 corpus <- tm_map(corpus, removePunctuation)
 corpus <- tm_map(corpus, stripWhitespace)
 
-#Create dtm to review
+### Create dtm to review
 dtm <- DocumentTermMatrix(corpus)
 dtm2 <- as.matrix(dtm)
 frequency <- colSums(dtm2)
@@ -30,7 +29,7 @@ View(frequency)
 head(frequency)
 View(dtm2)
 
-#Remove words that show up in ingredients list that are inefficient
+### Remove words that show up in ingredients list that are inefficient
 datadtm$ingredients<-gsub("-","",datadtm$ingredients)
 datadtm$ingredients<-gsub("_","",datadtm$ingredients)
 datadtm$ingredients<-gsub("kraft","",datadtm$ingredients)
