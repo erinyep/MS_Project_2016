@@ -1,28 +1,40 @@
+### The Beer Winners
+#   We are importing ingredients from the YummlyR API
+#   We are then clustering the recipes based on ingredients to see if 
+#     clusters line up with cuisine names 
+#   We are also going to attempt to predict the Cuisine Type based on ingredients using 
+#      a Naive Bayes model.
+#   We are also going to recluster inside of two clusters that are much too big to be effective. 
+
 library(tidyr)
 library(dplyr)
 library(yummlyr)
 library(stringr)
 library(tm)
-setwd("c:/temp")
-getwd()
 
-#required credentials for YummlyR API
+#set Working Directory
+setwd("c:/temp")
+#set Seed
+set.seed(1234)
+
+### Required credentials for YummlyR API
 save_yummly_credentials("934827d6", "4b8a14bc124c8f1d648a518da46f6879")
 
-###Build a data frame of cuisines
+### Build a data frame of cuisines
 cuisine <- get_metadata("cuisine")
 
-###Build a list of cuisine types
+### Build a list of cuisine types
 cuisinename<- cuisine[,2]
 
-###Build a list of 13 thousand recipes
+### Build a list of 13 thousand recipes
 recipes <- lapply(cuisinename, function (x) search_recipes(search_words="", allowed_cuisine=x, max_results = 500))
 
-###recipes has 26 lists in it, and inside recipes[[i]]$matches$recipeName is the name of the recipe
+### Recipes has 26 lists in it, and inside recipes[[i]]$matches$recipeName is the name of the recipe
 ###                                inside recipes[[i]]$matches$ingredients[j] are the 
 ###                                                            corresponding ingredients that we need     
 
-###Build a column of recipe titles
+### Build a column of recipe titles, This is done because we use loops elsewhere 
+### The names for recipes need to be looped for correct consistency
 fullrecipes<- as.data.frame(unlist(lapply(recipes, function(x) x$matches$recipeName)))
 z<-1
 for(i in 1:26){
@@ -35,11 +47,11 @@ for(i in 1:26){
   }
 }
 
-###Build a column of ingredients
+### Build a column of ingredients
 #fullrecipes$ingredients<- lapply(recipes, function(x) x$matches$ingredients)
-### WRONG
-### lists all ingredients used in the first 400 recipes in the first row, second 400 in row 2,
-###  begins repeating at row 27
+### WRONG, that code did not work as intended.
+### Lists all ingredients used in the first 400 recipes in the first row, second 400 in row 2,
+### Begins repeating at row 27
 z<-1
 for(i in 1:26){
   list1<-recipes[[i]]
@@ -51,7 +63,7 @@ for(i in 1:26){
   }
 }
 
-###Build a column of cuisine's
+### Build a column of cuisine's
 z<-1
 for(i in 1:26){
   list1<-recipes[[i]]
@@ -63,24 +75,24 @@ for(i in 1:26){
   }
 }
 
-#drop the results of the apply and remove NA's
+### Drop the results of the apply and remove NA's
 fullrecipes<-fullrecipes[,c(2,3,4)]
 data <- fullrecipes[!is.na(fullrecipes$recipe),]
 
 
-###Put ingredients into character form from lists
+### Put ingredients into character form from lists
 data$ingredients<-as.character(data$ingredients)
 data$recipe<- as.character(data$recipe)
 data$cuisine<- as.character(data$cuisine)
 
-###Remove the c(...) from the beginning and end of the lists
+### Remove the c(...) from the beginning and end of the lists
 data$ingredients<- substring(data$ingredients, 3)
 data$ingredients<-gsub("\\)","",data$ingredients)
-#remove spaces
+### Remove spaces
 data$ingredients <- gsub(" ","_",data$ingredients)
 data$ingredients <- gsub(",_",",",data$ingredients)
 
-#clean the Cuisine Column
+### Clean the Cuisine Column
 for (i in 1:12982){
   if(substring(data$cuisine[i],1,1)=="c"){
     data$cuisine[i]<- substring(data$cuisine[i], 3)
@@ -90,21 +102,21 @@ for (i in 1:12982){
 data$cuisine<-gsub("[[:punct:]]", "", data$cuisine)
 data$cuisine<-gsub('([A-z]+) .*', '\\1', data$cuisine)
 
-#save data for sharing
-save(data, file="RecipeData.Rda")
+### !!! If you have any errors please download RecipeData.Rda from GitHub 
+### !!! The YummlyR API is not always effective at pulling in data with out error.
 
 ##########################################################
-#Create a backup for redundancy
+### Create a backup for redundancy
 data1<-data
 View(data1)
 ##########################################################
 
-#Create a new data frame and remove punctuation
+### Create a new data frame and remove punctuation
 datatdm<-data
 datatdm$ingredients<-gsub('"', "", datatdm$ingredients)
 datatdm$ingredients<-gsub(',', " ", datatdm$ingredients)
 
-#Create a document for word frequency
+### Create a document for word frequency
 ingredient_text <- paste(datatdm$ingredients, collapse=" ")
 ingredient_source <- VectorSource(ingredient_text)
 corpus <- Corpus(ingredient_source)
@@ -116,8 +128,9 @@ dtm2 <- as.matrix(dtm)
 frequency <- colSums(dtm2)
 frequency <- sort(frequency, decreasing=TRUE)
 View(frequency)
+head(frequency)
 
-#Make changes to ingredients based on visual overveiw of Frequency
+### Make changes to ingredients based on visual overveiw of Frequency
 datatdm$ingredients<-gsub("-","",datatdm$ingredients)
 datatdm$ingredients<-gsub("_","",datatdm$ingredients)
 datatdm$ingredients<-gsub("kraft","",datatdm$ingredients)
@@ -155,7 +168,7 @@ datatdm$ingredients<-gsub("canned","",datatdm$ingredients)
 datatdm$ingredients<-gsub("sliced","",datatdm$ingredients)
 datatdm$ingredients<-gsub("lowsodium","",datatdm$ingredients)
 
-#Check all changes to see if you are happy with the results
+### Check all changes to see if you are happy with the results
 ingredient_text <- paste(datatdm$ingredients, collapse=" ")
 ingredient_source <- VectorSource(ingredient_text)
 corpus <- Corpus(ingredient_source)
@@ -167,6 +180,8 @@ dtm2 <- as.matrix(dtm)
 frequency <- colSums(dtm2)
 frequency <- sort(frequency, decreasing=TRUE)
 View(frequency)
+View(dtm2)
 
-############################################################
-############################################################
+### This was exploratory to seek if there are certain words 
+### that should be cleaned, cut, or combined
+
