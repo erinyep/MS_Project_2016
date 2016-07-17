@@ -1,3 +1,12 @@
+#Load library for tm package
+library(tm)
+
+####super snazzy code that I found online to help tag the id to the document#####
+#### Will be important for our overall project#########
+myReader1 <- readTabular(mapping=list(content="ingredients", id="recipe"))
+myReaderCuisine <- readTabular(mapping=list(content="ingredients", id="cuisine"))
+
+### create the corpus with document IDs
 datatdm<-data
 datatdm$ingredients<-gsub('"', "", datatdm$ingredients)
 datatdm$ingredients<-gsub(',', " ", datatdm$ingredients)
