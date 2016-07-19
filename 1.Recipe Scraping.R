@@ -26,6 +26,13 @@ cuisine <- get_metadata("cuisine")
 ### Build a list of cuisine types
 cuisinename<- cuisine[,2]
 
+###!!!###!!!
+# NOTE:
+# Line 37 often does not run with out error on the first try. This is a problem with the API that YummlyR uses. 
+# The end result of this block of code is saved on GitHub as RecipeData.Rda. This is the best way to replicate our results.
+# It also ensures that you use the same data as we did due to the fact that the API pulls current records. Our data is from 7/5/2016
+###!!!###!!!
+
 ### Build a list of 13 thousand recipes
 recipes <- lapply(cuisinename, function (x) search_recipes(search_words="", allowed_cuisine=x, max_results = 500))
 
