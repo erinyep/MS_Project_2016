@@ -9,8 +9,8 @@ myReaderCuisine <- readTabular(mapping=list(content="ingredients", id="cuisine")
 
 ### Create the corpus with document IDs
 data.clean <- data
-data.clean<-gsub('"', "", data.clean$ingredients)
-data.clean<-gsub(',', " ", data.clean$ingredients)
+data.clean$ingredients<-gsub('"', "", data.clean$ingredients)
+data.clean$ingredients<-gsub(',', " ", data.clean$ingredients)
 
 ### Corpus clean up tasks
 ingredient_text <- paste(data.clean$ingredients, collapse=" ")
