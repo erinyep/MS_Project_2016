@@ -8,22 +8,19 @@ m <- as.matrix(dtm_tfxidf)
 
 norm_eucl <- function(m) m/apply(m, MARGIN=1, FUN=function(x) sum(x^2)^.5)
 
-set.seed(1234)
+
+
 m_norm <- norm_eucl(m)
 
 ########Execute K Means###########
-
-cl10 <- kmeans(m_norm, 10)
-
+set.seed(1234)
+cl15 <- kmeans(m_norm, 15)
 
 ###add the clusters into the cleanded data frame 
 
+data.clean$cluster <- cl15$cluster
 
-data.clean$cluster <- cl10$cluster
-
-write.csv(dataclust10, file = "datawithclusters10.csv")
-
-
+write.csv(data.clean, file = "datawithclusters15.csv")
 
 #######function to look at top cuisines of a cluster#################################
 topClusterCuisines <- function(clusterNumber, clusterdf, numofterms = 10){
@@ -39,7 +36,6 @@ topClusterCuisines <- function(clusterNumber, clusterdf, numofterms = 10){
   clusfreq[tail(clusord,numofterms)]
 }
 
-
 ###########################Function to look at the top terms of a cluster#################################
 topClusterTerms <- function(clusterNumber, clusterdf, numofterms = 10){
   myReader1 <- readTabular(mapping=list(content="ingredients", id="recipe"))
@@ -53,7 +49,6 @@ topClusterTerms <- function(clusterNumber, clusterdf, numofterms = 10){
   clusord <- order(clusfreq)
   clusfreq[tail(clusord,numofterms)]
 }
-
 
 ##############################Function to Recluster results ########################
 
@@ -73,9 +68,8 @@ reCluster <- function(clusterNumber, clusterdf, numofclusters = 5){
   x_norm <- norm_eucl(x)
   xClus <- kmeans(x_norm, numofclusters)
   clustdata$cluster <- xClus$cluster
-  write.csv(clustdata, file = paste("cluster",clusterNumber,"reclus.csv", sep="")
+  write.csv(clustdata, file = paste("cluster",clusterNumber,"reclus.csv", sep=""))
 }
-
 
 
 ###Run this to check out the leading terms in the clusters
@@ -89,22 +83,26 @@ topClusterCuisines(5,cluster3)
 #reCluster any clusters that are a 'potluck' of recipies or cuisines. 
 
 ##reminder, this out puts as a CSV currently
-reCluster(3, dataclust10)
-
+reCluster(8, data.clean)
+reCluster(13, data.clean)
 
 
 ####read back in the reclustered data frames
 
-recluster6 <- read.csv('cluster6reclus.csv')
-recluster3 <- read.csv('cluster3reclus.csv')
+recluster8 <- read.csv('cluster8reclus.csv')
+recluster13 <- read.csv('cluster13reclus.csv')
 
 
 #####create the data frame for Naive Bayes modeling
 
 dataClusNB <- data.clean
 
-dataClusNB <- dataClusNB[dataClusNB$cluster!=3,]
-dataClusNB <- dataClusNB[dataClusNB$cluster!=6,]
+dataClusNB <- dataClusNB[dataClusNB$cluster!=13,]
+dataClusNB <- dataClusNB[dataClusNB$cluster!=8,]
+
+####
+Code Verified to this point
+####
 
 cluster6 <- cluster5[,(2,3,4,5)]
 
