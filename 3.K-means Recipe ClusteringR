@@ -100,15 +100,14 @@ dataClusNB <- data.clean
 dataClusNB <- dataClusNB[dataClusNB$cluster!=13,]
 dataClusNB <- dataClusNB[dataClusNB$cluster!=8,]
 
-####
-Code Verified to this point
-####
 
-cluster6 <- cluster5[,(2,3,4,5)]
 
-dataClusNB <- rbind(cluster6,dataClusNB)
+cluster13 <- recluster13[,(2,3,4,5)]
+cluster13$cluster <- cluster13$cluster + 10
+
+dataClusNB <- rbind(cluster13,dataClusNB)
 
 #####leave out this cluster, did not re cluster well. We will be using it as a classification data set.
-cluster3 <- cluster3[,c(2,3,4,5)]
+cluster8 <- cluster8[,c(2,3,4,5)]
 
-save(cluster3, file='largeclusNB.Rda')
+save(cluster8, file='largeclusNB.Rda')
