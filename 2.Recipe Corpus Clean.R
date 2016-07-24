@@ -1,6 +1,7 @@
 ### The Beer Winners
 # Run this code after uploading RecipeData.Rda
 # Or if you ran Recipe Scraping-1
+library(tm)
 
 ### Code to tag the ID to the document
 ### Will be important for our overall project
