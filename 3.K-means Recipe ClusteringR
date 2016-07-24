@@ -106,6 +106,6 @@ cluster13$cluster <- cluster13$cluster + 15
 dataClusNB <- rbind(cluster13,dataClusNB)
 
 #####leave out this cluster, did not re cluster well. We will be using it as a classification data set.
-cluster8 <- cluster8[,c(2,3,4,5)]
+cluster8 <- recluster8[,c(2,3,4,5)]
 
 save(cluster8, file='largeclusNB.Rda')
