@@ -8,8 +8,6 @@ m <- as.matrix(dtm_tfxidf)
 
 norm_eucl <- function(m) m/apply(m, MARGIN=1, FUN=function(x) sum(x^2)^.5)
 
-
-
 m_norm <- norm_eucl(m)
 
 ########Execute K Means###########
@@ -73,11 +71,11 @@ reCluster <- function(clusterNumber, clusterdf, numofclusters = 5){
 
 
 ###Run this to check out the leading terms in the clusters
-topClusterTerms(3, cluster5 ,20)
+topClusterTerms(8, data.clean ,20)
 
 
 ###Run this to check out the leading cuisines in the clusters
-topClusterCuisines(5,cluster3)
+topClusterCuisines(8,data.clean)
 
 
 #reCluster any clusters that are a 'potluck' of recipies or cuisines. 
@@ -102,8 +100,8 @@ dataClusNB <- dataClusNB[dataClusNB$cluster!=8,]
 
 
 
-cluster13 <- recluster13[,(2,3,4,5)]
-cluster13$cluster <- cluster13$cluster + 10
+cluster13 <- recluster13[,c(2,3,4,5)]
+cluster13$cluster <- cluster13$cluster + 15
 
 dataClusNB <- rbind(cluster13,dataClusNB)
 
