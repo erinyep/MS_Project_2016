@@ -3,7 +3,7 @@ library('SparseM');
 library('tm');
 
 setwd("~/Bellarmine/Text Mining")
-load("dataClusNB01.Rda")
+load("dataClusNB.Rda")
 Sample_data <- dataClusNB
 Sample_data$ingredients <- gsub(",", " ", Sample_data$ingredients)
 Sample_data$ingredients <- gsub('"', " ", Sample_data$ingredients)
@@ -48,18 +48,18 @@ convert_count <- function(x) {
   y <- factor(y, levels=c(0,1), labels=c(0, 1))
 }
 
-yum_train <- apply(trainmatrixDTM, 2, convert_count)
-yum_test <- apply(testmatrixDTM, 2, convert_count)
+sms_train <- apply(trainmatrixDTM, 2, convert_count)
+sms_test <- apply(testmatrixDTM, 2, convert_count)
 
 # TRAIN NAIVE BAYES MODEL USING trainmatrix DATA AND traindate$Journal_group CLASS VECTOR
-model <- naiveBayes(yum_train,as.factor(traindata$cluster));
+model <- naiveBayes(sms_train,as.factor(traindata$cluster));
 
 # PREDICTION
-prediction <- predict(model, newdata=yum_test)
+resultsRECLUS <- predict(model, newdata=sms_test)
 #Take Prediction Results and make them into a Confusion Matrix, IN ONLY 6 EASY STEPS!
-comptable <- table(prediction, testdata$cluster)
+comptable <- table(resultsRECLUS, testdata$cluster)
 comptabledf <- data.frame(comptable)
-ConfusionMatrix <- reshape(comptabledf, idvar ="prediction", timevar =  "Var2", direction = "wide")
+ConfusionMatrix <- reshape(comptabledf, idvar ="resultsRECLUS", timevar =  "Var2", direction = "wide")
 rownames(ConfusionMatrix) <- ConfusionMatrix[,1]
 ConfMatx <- ConfusionMatrix[,-1]
 ConfMatx1 <- as.matrix(ConfMatx)
