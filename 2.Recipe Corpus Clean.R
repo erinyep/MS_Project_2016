@@ -62,8 +62,7 @@ frequency <- colSums(dtm2)
 frequency <- sort(frequency, decreasing=TRUE)
 head(frequency)
 
-### View updated frequency and create dataframe
-View(frequency)
+### Create dataframe for ingredients
 freq.df <- as.data.frame(frequency)
 freq.df$ingredient <- row.names(freq.df)
 freq.df <- as.data.frame(freq.df, row.names = 1:length(freq.df$frequency))
