@@ -7,12 +7,12 @@ library('tm');
 
 setwd("~/Bellarmine/Text Mining")
 load("largeclusNB.Rda")
-Sample_data1 <- cluster3
+Sample_data1 <- cluster8
 Sample_data1$ingredients <- gsub(",", " ", Sample_data1$ingredients)
 Sample_data1$ingredients <- gsub('"', " ", Sample_data1$ingredients)
 Sample_data1$ingredients <- gsub("_", " ", Sample_data1$ingredients)
 
-load("dataClusNB01.Rda")
+load("dataClusNB.Rda")
 Sample_data <- dataClusNB
 Sample_data$ingredients <- gsub(",", " ", Sample_data$ingredients)
 Sample_data$ingredients <- gsub('"', " ", Sample_data$ingredients)
@@ -75,7 +75,7 @@ sms_test <- apply(testmatrixDTM, 2, convert_count)
 model2 <- naiveBayes(sms_train,as.factor(traindata$cluster));
 
 # PREDICTION
-resultsRECLUS2 <- predict(model1, newdata=sms_test)
+resultsRECLUS2 <- predict(model2, newdata=sms_test)
 
 Recluster <- data.frame(Sample_data1$recipe)
 Recluster$NewCluster <- resultsRECLUS2
