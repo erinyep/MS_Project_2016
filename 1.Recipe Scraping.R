@@ -18,7 +18,7 @@ setwd("c:/temp")
 set.seed(1234)
 
 ### Required credentials for YummlyR API
-save_yummly_credentials("934827d6", "4b8a14bc124c8f1d648a518da46f6879")
+save_yummly_credentials([Get Your Own Credentials])
 
 ### Build a data frame of cuisines
 cuisine <- get_metadata("cuisine")
