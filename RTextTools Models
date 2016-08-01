@@ -1,0 +1,50 @@
+install.packages("RTextTools")
+library(RTextTools)
+
+set.seed(56781234)
+
+# Randomize Data so that we can divide train and test simply
+data.clean.randomized <- data.clean[sample(1:nrow(data.clean)), ]
+
+# Create a Document Matrix
+doc_matrix <- create_matrix(data.clean.randomized$ingredients, language="english", removeNumbers=TRUE)
+container <- create_container(doc_matrix, as.numeric(factor(data.clean.randomized$cuisine)), trainSize=1:9000, testSize=9001:12982, virgin=FALSE)
+
+# Train the different Models
+SVM <- train_model(container,"SVM")
+MAXENT <- train_model(container,"MAXENT")
+SLDA <- train_model(container,"SLDA")
+BOOSTING <- train_model(container,"BOOSTING")
+RF <- train_model(container,"RF")
+TREE <- train_model(container,"TREE")
+NNET <- train_model(container,"NNET")
+BAGGING <- train_model(container,"BAGGING")
+
+# Apply models to test data
+SVM_CLASSIFY <- classify_model(container, SVM)
+MAXENT_CLASSIFY <- classify_model(container, MAXENT)
+ SLDA_CLASSIFY <- classify_model(container, SLDA)
+ BOOSTING_CLASSIFY <- classify_model(container, BOOSTING)
+ BAGGING_CLASSIFY <- classify_model(container, BAGGING)
+ RF_CLASSIFY <- classify_model(container, RF)
+ NNET_CLASSIFY <- classify_model(container, NNET)
+ TREE_CLASSIFY <- classify_model(container, TREE)
+
+ # Store the Results and View them.
+analytics <- create_analytics(container,
+                              cbind(SVM_CLASSIFY, 
+                                    SLDA_CLASSIFY,
+                                    BOOSTING_CLASSIFY, BAGGING_CLASSIFY,
+                                    RF_CLASSIFY,
+                                    NNET_CLASSIFY, TREE_CLASSIFY,
+                                    MAXENT_CLASSIFY))
+
+summary(analytics)
+
+# CREATE THE data.frame SUMMARIES
+topic_summary <- analytics@label_summary
+alg_summary <- analytics@algorithm_summary
+ens_summary <-analytics@ensemble_summary
+doc_summary <- analytics@document_summary
+
+# Fulfil the requirements for an additional model with 50 lines of code, plus throw in another 7 models.
