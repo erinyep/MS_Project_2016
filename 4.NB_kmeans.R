@@ -1,10 +1,12 @@
+if (!("e1071" %in% installed.packages())) install.packages("e1071")
 library('e1071');
+if (!("SparseM" %in% installed.packages())) install.packages("SparseM")
 library('SparseM');
+if (!("tm" %in% installed.packages())) install.packages("tm")
 library('tm');
 
-setwd("~/Bellarmine/Text Mining")
-load("dataClusNB.Rda")
-Sample_data <- dataClusNB
+load("train.data.Rda")
+Sample_data <- train.data
 Sample_data$ingredients <- gsub(",", " ", Sample_data$ingredients)
 Sample_data$ingredients <- gsub('"', " ", Sample_data$ingredients)
 Sample_data$ingredients <- gsub("_", " ", Sample_data$ingredients)
@@ -12,19 +14,11 @@ Sample_data$ingredients <- gsub("-", " ", Sample_data$ingredients)
 
 #Drop levels removes all clusters that have zero predictions, caused an issue when trying to create a confusion matrix. 
 Sample_data$cluster <- droplevels(as.factor(Sample_data$cluster))
-#Split Train/Test Sets
-set.seed(1234)  #For replication purposes
-rand <- rbinom(nrow(Sample_data), 1, .7)
-Sample_data$partition <- "test"
-Sample_data$partition[rand==1] <- "train"
-Sample_data$partition <- as.factor(Sample_data$partition)
-traindata <- Sample_data[Sample_data$partition=="train",]
-testdata <- Sample_data[Sample_data$partition=="test",]
 
 #This creates corpus and keeps the ID. 
 myReader <- readTabular(mapping=list(content="ingredients", id="recipe"))
-traincorp <- Corpus(DataframeSource(traindata), readerControl=list(reader=myReader))
-testcorp <- Corpus(DataframeSource(testdata), readerControl=list(reader=myReader))
+traincorp <- Corpus(DataframeSource(train.data), readerControl=list(reader=myReader))
+testcorp <- Corpus(DataframeSource(test.data), readerControl=list(reader=myReader))
 
 # Transforming "traincorpus" and "testcorpus".
 traincorp <- tm_map(traincorp,stripWhitespace);
@@ -48,16 +42,16 @@ convert_count <- function(x) {
   y <- factor(y, levels=c(0,1), labels=c(0, 1))
 }
 
-sms_train <- apply(trainmatrixDTM, 2, convert_count)
-sms_test <- apply(testmatrixDTM, 2, convert_count)
+nb_train <- apply(trainmatrixDTM, 2, convert_count)
+nb_test <- apply(testmatrixDTM, 2, convert_count)
 
 # TRAIN NAIVE BAYES MODEL USING trainmatrix DATA AND traindate$Journal_group CLASS VECTOR
-model <- naiveBayes(sms_train,as.factor(traindata$cluster));
+model <- naiveBayes(nb_train,as.factor(train.data$cluster));
 
 # PREDICTION
-resultsRECLUS <- predict(model, newdata=sms_test)
+resultsRECLUS <- predict(model, newdata=nb_test)
 #Take Prediction Results and make them into a Confusion Matrix, IN ONLY 6 EASY STEPS!
-comptable <- table(resultsRECLUS, testdata$cluster)
+comptable <- table(resultsRECLUS, test.data$cluster)
 comptabledf <- data.frame(comptable)
 ConfusionMatrix <- reshape(comptabledf, idvar ="resultsRECLUS", timevar =  "Var2", direction = "wide")
 rownames(ConfusionMatrix) <- ConfusionMatrix[,1]
