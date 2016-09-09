@@ -1,5 +1,5 @@
 ####Weight with Tf IDF##########
-
+library(tm)
 dtm_tfxidf <- weightTfIdf(dtm)
 
 ###Prep for K means
@@ -14,7 +14,7 @@ m_norm <- norm_eucl(m)
 set.seed(1234)
 cl15 <- kmeans(m_norm, 15)
 
-###add the clusters into the cleanded data frame 
+###add the clusters into the cleaned data frame 
 
 data.clean$cluster <- cl15$cluster
 
@@ -98,14 +98,45 @@ dataClusNB <- data.clean
 dataClusNB <- dataClusNB[dataClusNB$cluster!=13,]
 dataClusNB <- dataClusNB[dataClusNB$cluster!=8,]
 
-
+prop.table(table(dataClusNB$cluster))
 
 cluster13 <- recluster13[,c(2,3,4,5)]
-cluster13$cluster <- cluster13$cluster + 15
+cluster13$cluster[cluster13$cluster==1] <- 13
+cluster13$cluster[cluster13$cluster==2] <- 16
+cluster13$cluster[cluster13$cluster==3] <- 17
+cluster13$cluster[cluster13$cluster==4] <- 18
+cluster13$cluster[cluster13$cluster==5] <- 19
 
-dataClusNB <- rbind(cluster13,dataClusNB)
+prop.table(table(cluster13$cluster))
 
-#####leave out this cluster, did not re cluster well. We will be using it as a classification data set.
 cluster8 <- recluster8[,c(2,3,4,5)]
+cluster8$cluster[cluster8$cluster==1] <- 8
+cluster8$cluster[cluster8$cluster==2] <- 20
+cluster8$cluster[cluster8$cluster==3] <- 21
+cluster8$cluster[cluster8$cluster==4] <- 22
+cluster8$cluster[cluster8$cluster==5] <- 23
 
-save(cluster8, file='largeclusNB.Rda')
+dataClusNB <- rbind(cluster13,cluster8,dataClusNB)
+
+prop.table(table(dataClusNB$cluster))
+### Create Test and Train Sets
+
+set.seed(123)
+
+sp <- split(dataClusNB, list(dataClusNB$cluster))
+samples <- lapply(sp, function(x) x[sample(1:nrow(x), floor(.25*nrow(x)), FALSE),])
+out <- do.call(rbind, samples)
+## 75% of the sample size
+smp_size <- floor(0.75 * nrow(data.clean))
+
+## set the seed to make your partition reproductible
+set.seed(123)
+train_ind <- sample(seq_len(nrow(data.clean)), size = smp_size)
+length(unique(train_ind))
+
+
+train.data <- data.clean[train_ind, ]
+test.data <- data.clean[-train_ind, ]
+save(train.data, file = "train.data.RDA")
+save(test.data, file = "test.data.RDA")
+
