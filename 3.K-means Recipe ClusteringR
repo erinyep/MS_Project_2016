@@ -1,4 +1,6 @@
 ####Weight with Tf IDF##########
+if (!("tm" %in% installed.packages())) install.packages("tm")
+library('tm')
 library(tm)
 dtm_tfxidf <- weightTfIdf(dtm)
 
